@@ -12,11 +12,12 @@ public class BootStrap {
         int port = 8888;
         // 读取io模型方式
         String iOPattern = "bio";
-        // 根据io模型获取对应的EndPoint (使用工厂模式
         EndPoint endpoint;
         try{
+            // 根据io模型获取对应的EndPoint (使用工厂模式
             endpoint = EndPointFactory.getInstance(iOPattern);
-            endpoint.start();
+            // 启动endpoint
+            endpoint.start(port);
         }catch (ClassNotFoundException e){
             e.printStackTrace();
         } catch (InstantiationException e) {
