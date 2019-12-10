@@ -25,7 +25,7 @@ public class BioEndPoint implements EndPoint {
             server = new ServerSocket(port);
             acceptor = new BioAcceptor(this,  dispatcher);
             Thread acceptorProcessor = new Thread(acceptor);
-            //acceptorProcessor.setDaemon(true);
+            acceptorProcessor.setDaemon(true);
             acceptorProcessor.start();
         } catch (IOException e) {
             e.printStackTrace();

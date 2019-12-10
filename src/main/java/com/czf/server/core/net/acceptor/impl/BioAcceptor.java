@@ -24,11 +24,12 @@ public class BioAcceptor implements Acceptor, Runnable {
         InputStream in = null;
         try {
             while( true ) {
-                System.out.println("正在监听...");
+//                System.out.println("正在监听...");
+                // 这里可以利用信号量来控制最大连接数, 防止线程过多。
                 client = server.accept();
-                System.out.println("建立连接...");
-                dispatcher.doDispatcher(new BioSocketWrapper(client));
-                System.out.println("监听结束...");
+//                System.out.println("建立连接...");
+                dispatcher.doDispatcher(new BioSocketWrapper(client)); // 这里不能阻塞，但却出现了阻塞。
+//                System.out.println("监听结束...");
             }
         } catch (IOException e) {
             e.printStackTrace();
