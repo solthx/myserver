@@ -15,7 +15,7 @@ public class BioDispatcher implements Dispatcher {
     public void doDispatcher(SocketWrapper wrapper) {
         BioSocketWrapper bioWrapper = (BioSocketWrapper) wrapper;
         Socket socket = bioWrapper.getSocket();
-        // 接下来应该是读取socket然后封装成request和response.
+        // 任务转发
         Thread processor = new Thread(new BioHandler(socket));
         processor.start();
     }

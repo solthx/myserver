@@ -3,12 +3,13 @@ package com.czf.server.core.net.endpoint.impl;
 import com.czf.server.core.net.acceptor.impl.BioAcceptor;
 import com.czf.server.core.net.dispatch.impl.BioDispatcher;
 import com.czf.server.core.net.endpoint.EndPoint;
+import lombok.Data;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-
+@Data
 public class BioEndPoint implements EndPoint {
     private boolean isRunning = false;
     private BioDispatcher dispatcher;
@@ -22,6 +23,7 @@ public class BioEndPoint implements EndPoint {
     @Override
     public void start(int port) {
         try {
+            isRunning = true;
             server = new ServerSocket(port);
             acceptor = new BioAcceptor(this,  dispatcher);
             Thread acceptorProcessor = new Thread(acceptor);
@@ -34,7 +36,12 @@ public class BioEndPoint implements EndPoint {
 
     @Override
     public void close(){
-
+        isRunning = false; // 关闭了acceptor线程
+        try {
+            server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Socket accept() throws IOException {
