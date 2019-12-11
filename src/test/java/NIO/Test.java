@@ -1,5 +1,6 @@
 package NIO;
 
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -7,6 +8,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.util.Iterator;
 
 public class Test {
     private ByteBuffer readBuffer = ByteBuffer.allocateDirect(1024);
@@ -26,7 +30,42 @@ public class Test {
         // 把serverChannel注册到Selector上.. 感兴趣的事件为发生accept.
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
     }
-    public static void main(String[] args) {
 
+    private void go() throws IOException {
+        while( selector.select()>0 ){
+            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+            while( iterator.hasNext() ){
+                SelectionKey curKey = iterator.next();
+                iterator.remove();
+                if ( curKey.isAcceptable() ){
+                    System.out.println("isAccepted!");
+                    ServerSocketChannel server = (ServerSocketChannel) curKey.channel();
+                    SocketChannel client = server.accept();
+                    if ( client==null ){
+                        System.out.println("....");
+                    }
+
+                    client.configureBlocking(false);
+                    client.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                    ByteBuffer buff = ByteBuffer.allocate(1024);
+                    buff.put("response".getBytes());
+                    buff.flip();
+                    client.write(buff);
+                }else if ( curKey.isReadable() ){
+                    System.out.println("isReadable!");
+                    SocketChannel client = (SocketChannel) curKey.channel();
+                    readBuffer.clear();
+                    client.read(readBuffer);
+                    readBuffer.flip();
+                    String recv = Charset.forName("UTF-8").decode(readBuffer).toString();
+                    System.out.println(recv);
+                    curKey.attach("server message echo: " + recv);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        new Test().go();
     }
 }
