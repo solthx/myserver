@@ -5,8 +5,10 @@ import com.czf.server.core.net.dispatch.impl.NioDispatcher;
 import com.czf.server.core.net.endpoint.EndPoint;
 import com.czf.server.core.net.support.nio.NioPoller;
 import com.czf.server.core.net.support.nio.PollerCleaner;
+import com.czf.server.core.net.wrapper.impl.NioSocketWrapper;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -27,14 +29,19 @@ public class NioEndPoint implements EndPoint {
     public void start(int port) {
         try {
             isRunning = true;
-            server = ServerSocketChannel.open();
             dispatcher = new NioDispatcher();
+            InitServer(port);
             InitAcceptor();
             InitPollers();
             //InitCleaner();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void InitServer(int port) throws IOException {
+        server = ServerSocketChannel.open();
+        server.socket().bind(new InetSocketAddress(port));
     }
 
     public boolean isRunning(){
@@ -89,5 +96,9 @@ public class NioEndPoint implements EndPoint {
     @Override
     public void close() {
 
+    }
+
+    public void process(NioSocketWrapper wrapper) {
+        dispatcher.doDispatcher(wrapper);
     }
 }

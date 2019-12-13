@@ -12,7 +12,7 @@ public class BootStrap {
         // 读取端口号, 之后改成从配置文件读
         int port = 8888;
         // 读取io模型方式
-        String iOPattern = "bio";
+        String iOPattern = "nio";
         EndPoint endpoint = null;
         try{
             // 根据io模型获取对应的EndPoint (使用工厂模式

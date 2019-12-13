@@ -5,8 +5,10 @@ import com.czf.server.core.net.wrapper.impl.NioSocketWrapper;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Getter
@@ -17,6 +19,12 @@ public class NioPoller implements Runnable{
 
     public NioPoller(NioEndPoint endPoint){
         this.endPoint = endPoint;
+        this.events = new ConcurrentLinkedQueue<RegisterEvent>();
+        try {
+            selector = Selector.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void register(SocketChannel socketChannel){
@@ -43,7 +51,17 @@ public class NioPoller implements Runnable{
             try {
                 cnt = selector.select();
                 if ( cnt<=0 ) continue;
-
+                Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+                while( it.hasNext() ){
+                    SelectionKey curKey = it.next();
+                    it.remove();
+                    if ( curKey.isReadable() ){
+                        // 可读
+                        System.out.println("isReadable");
+                        // 转发
+                        endPoint.process((NioSocketWrapper) curKey.attachment());
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
