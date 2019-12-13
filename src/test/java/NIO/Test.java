@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 public class Test {
+
     private ByteBuffer readBuffer = ByteBuffer.allocate(1024);
     private ByteBuffer writeBuffer = ByteBuffer.allocate(1024);
     private Selector selector;
